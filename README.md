@@ -1,4 +1,3 @@
-<div align="center">
 
 # ✦ StellarFlow
 
@@ -40,25 +39,28 @@ Built on the **Stellar Testnet** using the **Freighter wallet extension**, Stell
 
 ## 🖼️ Screenshots
 
+### 🌌 Landing Page — Light Rays Hero
+> Mouse-interactive WebGL background, glassmorphism nav, hero CTA
+
+<img width="1451" height="731" alt="Screenshot 2026-06-11 at 1 56 10 PM" src="https://github.com/user-attachments/assets/81c34928-29e4-4960-851d-d674d73a6d9b" />
+
+
 ### 🔌 Wallet Connected — Dashboard View
 > Balance displayed, wallet address shown, Recent Activity panel ready
 
-![Dashboard Connected State](./screenshots/connected.png)
+<img width="1451" height="731" alt="Screenshot 2026-06-11 at 1 56 58 PM" src="https://github.com/user-attachments/assets/6ec4c169-7585-4c91-ba2e-2ce949468a8f" />
+
 
 ### 📤 Sending XLM — Transfer Panel
 > Recipient address input with Stellar format validation, amount field, and Process Transfer button
 
-![Send XLM Panel](./screenshots/send.png)
+<img width="1451" height="731" alt="Screenshot 2026-06-11 at 1 58 05 PM" src="https://github.com/user-attachments/assets/61d41ac1-0a3f-42e4-928b-3930ca03a98b" />
+
 
 ### ✅ Successful Testnet Transaction
 > Green "Transaction confirmed" badge with the on-chain transaction hash
 
-![Transaction Confirmed](./screenshots/success.png)
-
-### 🌌 Landing Page — Light Rays Hero
-> Mouse-interactive WebGL background, glassmorphism nav, hero CTA
-
-![Landing Page](./screenshots/landing.png)
+<img width="714" height="239" alt="Screenshot 2026-06-11 at 1 58 51 PM" src="https://github.com/user-attachments/assets/8d9ec35e-1573-41a0-929c-a94d83d4e309" />
 
 ---
 
