@@ -17,20 +17,20 @@ import {
 } from "@stellar/stellar-sdk";
 import { isConnected, signTransaction } from "@stellar/freighter-api";
 import { fetchBalance } from "./Freighter";
+import { toStroops, fromStroops, tierName } from "../lib/stellar";
 
 // ── Deployment constants (Testnet) ──
 export const CONTRACT_ID = "CCIYIE3WDF5EEC4DL25JR2O4SAV2G3USARIBMCLWPIFQVUOIVDEN5FWI";
+// Companion DonorBadge contract (inter-contract communication). Set this after
+// deploying the badge contract and calling `fund.set_badge(<BADGE_ID>)`.
+export const BADGE_ID = "";
 const RPC_URL = "https://soroban-testnet.stellar.org";
 // A funded account is needed as the *source* for read-only simulations.
 const READ_SOURCE = "GBH2MIGQ3TA7WWADXM6UIBJ7I73NRS7BVUX324JFC4VTFZXIPWPZLYSO";
 
-const STROOPS = 10_000_000; // 1 XLM = 10^7 stroops
-
 const server = new rpc.Server(RPC_URL);
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const toStroops = (xlm) => BigInt(Math.round(parseFloat(xlm) * STROOPS));
-const fromStroops = (s) => Number(BigInt(s)) / STROOPS;
 
 /* A typed error so the UI can branch on `code` and show friendly copy. */
 export class FundError extends Error {
@@ -51,9 +51,9 @@ function mapContractError(e) {
 }
 
 // ── Read a view method via simulation (no fee, no signature) ──
-async function readMethod(method, args = []) {
+async function readMethod(method, args = [], contractId = CONTRACT_ID) {
     const source = new Account(READ_SOURCE, "0");
-    const contract = new Contract(CONTRACT_ID);
+    const contract = new Contract(contractId);
     const tx = new TransactionBuilder(source, {
         fee: BASE_FEE,
         networkPassphrase: Networks.TESTNET,
@@ -86,6 +86,20 @@ export async function getCampaign() {
         closed: Boolean(closed),
         progress: goalXlm > 0 ? Math.min((raisedXlm / goalXlm) * 100, 100) : 0,
     };
+}
+
+/* Read a donor's loyalty tier from the companion DonorBadge contract.
+   Demonstrates inter-contract communication end-to-end: the fund contract
+   writes the badge on donation; the UI reads it back here. Returns a friendly
+   tier name ("None" | "Bronze" | "Silver" | "Gold"). */
+export async function getBadgeTier(pk) {
+    if (!BADGE_ID) return tierName(0);
+    try {
+        const t = await readMethod("tier", [new Address(pk).toScVal()], BADGE_ID);
+        return tierName(Number(t));
+    } catch {
+        return tierName(0);
+    }
 }
 
 /* How much a given address has contributed so far (in XLM). */
