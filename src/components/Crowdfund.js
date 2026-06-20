@@ -70,7 +70,7 @@ export default function Crowdfund({ address = null, onDonated }) {
             <div className="cf-head">
                 <div>
                     <div className="cf-eyebrow">On-chain crowdfunding · Soroban</div>
-                    <div className="cf-title">Fund the StellarFlow treasury</div>
+                    <div className="cf-title">Back the campaign, on-chain</div>
                 </div>
                 {campaign && (
                     <span className={`cf-state ${campaign.closed ? "cf-state-closed" : "cf-state-live"}`}>

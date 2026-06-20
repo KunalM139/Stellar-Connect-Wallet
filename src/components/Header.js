@@ -258,8 +258,8 @@ function Header() {
                 {/* Hero — copy left, lit coins right */}
                 <div className="cf-hero">
                     <div className="cf-hero-copy">
-                        <div className="cf-eyebrow">[ Live on Stellar Testnet ]</div>
-                        <h1 className="cf-title">
+                        <div className="hero-eyebrow">[ Live on Stellar Testnet ]</div>
+                        <h1 className="hero-h1">
                             Send money<br />
                             Beyond Borders
                         </h1>
@@ -336,7 +336,7 @@ function Header() {
                 <div className="lp-section-inner">
                     <Reveal className="cf-sec-head">
                         <div className="cf-sec-head-left">
-                            <div className="cf-eyebrow">[ Why StellarFlow? ]</div>
+                            <div className="hero-eyebrow">[ Why StellarFlow? ]</div>
                             <h2 className="lp-section-title">Everything you need<br />to move money fast</h2>
                         </div>
                         <div className="cf-sec-head-right">
@@ -435,12 +435,12 @@ function Header() {
             <section className="lp-campaign" id="campaign">
                 <div className="lp-campaign-inner">
                     <Reveal className="lp-campaign-copy">
-                        <div className="lp-section-eyebrow">Powered by Soroban</div>
-                        <h2 className="lp-section-title">A live crowdfunding campaign, fully on-chain</h2>
+                        <div className="lp-section-eyebrow">[ Powered by Soroban ]</div>
+                        <h2 className="lp-section-title">Crowdfunding that lives<br />entirely on-chain</h2>
                         <p className="lp-campaign-text">
-                            Every donation is a real Soroban smart-contract call on Stellar Testnet —
-                            funds move trustlessly into the contract, progress updates in real time
-                            from on-chain events, and the beneficiary withdraws directly. No backend, no custodian.
+                            No middlemen, no backend. Every donation is a Soroban contract call —
+                            funds settle trustlessly inside the contract, the bar you see updates
+                            straight from on-chain events, and only the beneficiary can withdraw.
                         </p>
                         <div className="lp-campaign-points">
                             <div className="lp-campaign-point"><CheckIcon /> Donations are signed by you, settled on-chain</div>
