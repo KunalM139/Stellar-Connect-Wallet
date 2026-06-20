@@ -13,18 +13,28 @@
 
 ---
 
-## 🛰️ Deployed Soroban Smart Contract
+## 🛰️ Deployed Soroban Smart Contracts
 
-**StellarFund** is a Rust/Soroban smart contract deployed and live on the **Stellar Testnet**. It is a fully on-chain crowdfunding campaign: donors send the native XLM asset into the contract, which tracks the cumulative amount raised, the unique-donor count, and each donor's running total; the campaign beneficiary (`owner`) can withdraw the collected funds.
+This project ships **two cooperating Rust/Soroban contracts** on the **Stellar Testnet**:
 
-| | |
+1. **StellarFund** (`fund`) — a fully on-chain crowdfunding campaign. Donors send the native XLM asset into the contract, which tracks the cumulative amount raised, the unique-donor count, and each donor's running total; the beneficiary (`owner`) can withdraw the collected funds.
+2. **DonorBadge** (`badge`) — a companion contract. On every donation, `fund` makes a **cross-contract call** to `badge.award`, assigning each donor a loyalty tier (Bronze / Silver / Gold) from their cumulative total. → see [Inter-Contract Communication](#-inter-contract-communication).
+
+| | fund | badge |
+|---|---|---|
+| **Contract ID** | `CCIYIE3WDF5EEC4DL25JR2O4SAV2G3USARIBMCLWPIFQVUOIVDEN5FWI` | _deploy + paste ID_ |
+| **Source** | [`contract/contracts/fund/src/lib.rs`](contract/contracts/fund/src/lib.rs) | [`contract/contracts/badge/src/lib.rs`](contract/contracts/badge/src/lib.rs) |
+| **Network** | Stellar Testnet | Stellar Testnet |
+| **Explorer** | [fund ↗](https://stellar.expert/explorer/testnet/contract/CCIYIE3WDF5EEC4DL25JR2O4SAV2G3USARIBMCLWPIFQVUOIVDEN5FWI) | — |
+
+- **Asset** — native XLM (SAC `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`) · **Goal** — 1,000 XLM (`10000000000` stroops)
+
+### 🔗 Transaction hashes (Testnet)
+
+| Action | Hash |
 |---|---|
-| **Contract ID** | `CCIYIE3WDF5EEC4DL25JR2O4SAV2G3USARIBMCLWPIFQVUOIVDEN5FWI` |
-| **Network** | Stellar Testnet |
-| **Asset** | native XLM (SAC `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`) |
-| **Goal** | 1,000 XLM (`10000000000` stroops) |
-| **Source** | [`contract/contracts/fund/src/lib.rs`](contract/contracts/fund/src/lib.rs) |
-| **Explorer** | [stellar.expert → contract](https://stellar.expert/explorer/testnet/contract/CCIYIE3WDF5EEC4DL25JR2O4SAV2G3USARIBMCLWPIFQVUOIVDEN5FWI) |
+| Deploy contract | [`97bb3a92…806ee41`](https://stellar.expert/explorer/testnet/tx/97bb3a9250ad37d64a76d3255ecd56f1bf562e21f958ad1f5ec53dbef806ee41) |
+| `donate()` interaction | [`5edecdcb…1937e4`](https://stellar.expert/explorer/testnet/tx/5edecdcbbc74588796b951900b22244af71baa35398e2aa499d32645511937e4) |
 
 ### 📂 Smart Contract Folder Structure
 
@@ -59,18 +69,94 @@ The contract uses Soroban's `#[contract]`, `#[contractimpl]`, `#[contracttype]`,
 **Custom errors:** `ZeroAmount` (1) · `CampaignClosed` (2) · `NothingRaised` (3)
 **Events:** `Donated { from, amount, total }` · `Withdrawn { owner, amount }`
 
-### 🦀 Build, Test & Deploy the Contract
+### 🦀 Build, Test & Deploy the Contracts
 
 ```bash
 cd contract
-cargo test                 # run the unit test suite (5 tests)
-stellar contract build     # build the optimized wasm
-
-# Deploy (constructor args: owner, token, goal-in-stroops)
-stellar contract deploy --wasm target/wasm32v1-none/release/fund.wasm \
-  --source <identity> --network testnet \
-  -- --owner <G...> --token <native-SAC> --goal 10000000000
+cargo test                 # run the full suite — 11 tests (6 fund + 5 badge)
+stellar contract build     # build both optimized wasm files
 ```
+
+Full step-by-step deployment of **both** contracts (including the `set_badge`
+wiring for the cross-contract call) lives in **[`contract/README.md`](contract/README.md)**.
+
+---
+
+## 🔗 Inter-Contract Communication
+
+StellarFund and DonorBadge demonstrate a real **cross-contract call** on Soroban:
+
+```
+ donor ──donate()──▶  fund contract  ──award()──▶  badge contract
+                      (records gift)              (assigns loyalty tier)
+```
+
+1. A donor calls `fund.donate(from, amount)`.
+2. `fund` records the donation and updates the donor's running total.
+3. If a badge contract is registered (`fund.set_badge(<BADGE_ID>)`), `fund`
+   invokes `BadgeClient::new(&env, &badge).award(&from, &donor_total)`.
+4. `badge.award` authorizes the caller via `admin.require_auth()` — where
+   `admin` is the **fund contract's own address** — so only the fund contract
+   can mint badges. Both writes share one transaction, making the badge update
+   **atomic** with the donation.
+
+The typed client is generated with `#[contractclient]` from a trait in
+[`fund/src/lib.rs`](contract/contracts/fund/src/lib.rs), and the end-to-end path
+is covered by the `donation_awards_badge_cross_contract` test.
+
+---
+
+## 🧪 Testing
+
+| Suite | Command | Tests |
+|---|---|---|
+| Contracts (Rust) | `cd contract && cargo test` | **11** (6 fund + 5 badge) |
+| Frontend (Jest) | `CI=true npm test` | **9** (`src/lib/stellar.test.js`) |
+
+Frontend tests cover the pure conversion, validation, and tier-mapping helpers
+in [`src/lib/stellar.js`](src/lib/stellar.js) — stroop ↔ XLM conversion, Stellar
+address format validation, and badge-tier naming.
+
+> 📸 _Screenshot: test output with passing tests_ — **[add image]**
+
+---
+
+## ⚙️ CI/CD Pipeline
+
+Every push and pull request to `main` runs **[GitHub Actions](.github/workflows/ci.yml)** with two parallel jobs:
+
+| Job | Steps |
+|---|---|
+| **Soroban contracts** | install Rust → `cargo test --workspace` |
+| **Frontend** | `npm ci` → `npm test` → `npm run build` |
+
+> 📸 _Screenshot: CI/CD pipeline running (green)_ — **[add image]**
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  React dApp (CRA)                                            │
+│  Header → Crowdfund ──► Fund.js (Soroban RPC client)        │
+│                         Freighter.js (wallet: sign/address) │
+│                         lib/stellar.js (pure, unit-tested)  │
+└───────────────┬─────────────────────────────────────────────┘
+                │ @stellar/stellar-sdk + @stellar/freighter-api
+                ▼
+        Soroban RPC (Testnet)
+                │
+   ┌────────────┴────────────┐
+   ▼                         ▼
+ fund contract  ──award()──►  badge contract
+ (crowdfunding)              (DonorBadge tiers)
+```
+
+- **Separation of concerns** — pure helpers (`lib/stellar.js`) are isolated from network/wallet code so they can be unit-tested without mocks.
+- **Typed errors + loading states** — `FundError` maps contract failures to friendly UI copy; `Crowdfund.js` tracks `idle → pending → success → error`.
+- **Real-time updates** — `getRecentDonations()` streams on-chain `Donated` events into a live activity feed.
+- **Atomic cross-contract writes** — donation + badge award commit in one transaction.
 
 ---
 
@@ -199,22 +285,29 @@ Or use [Stellar Laboratory](https://laboratory.stellar.org/#account-creator?netw
 
 ```
 stellar-connect-wallet/
-├── contract/                           # ← Soroban smart contract (Rust)
-│   ├── Cargo.toml                      # workspace
+├── .github/workflows/ci.yml            # ← CI/CD: contract tests + frontend test/build
+├── contract/                           # ← Soroban smart contracts (Rust workspace)
+│   ├── Cargo.toml                      # workspace (members = contracts/*)
 │   └── contracts/
-│       └── fund/
-│           ├── Cargo.toml
-│           └── src/
-│               ├── lib.rs              # StellarFund contract source
-│               └── test.rs             # unit tests
+│       ├── fund/src/
+│       │   ├── lib.rs                  # StellarFund crowdfunding contract → calls badge
+│       │   └── test.rs                 # 6 unit tests (incl. cross-contract)
+│       └── badge/src/
+│           ├── lib.rs                  # DonorBadge contract ← called by fund
+│           └── test.rs                 # 5 unit tests
 ├── public/
 │   └── index.html
 ├── src/
 │   ├── components/
 │   │   ├── Header.js                   # landing page + dashboard UI
+│   │   ├── Crowdfund.js                # campaign panel, loading/error states
+│   │   ├── Fund.js                     # Soroban RPC client (read/donate/events/badge)
 │   │   ├── Freighter.js                # wallet connect, address, balance, signing
 │   │   ├── LightRays.js                # WebGL light-rays effect (OGL + GLSL)
 │   │   └── LightRays.css
+│   ├── lib/
+│   │   ├── stellar.js                  # pure helpers (conversion/validation/tiers)
+│   │   └── stellar.test.js             # 9 frontend unit tests
 │   ├── App.js                          # root component
 │   ├── App.css                         # design system (glassmorphism dark theme)
 │   └── index.css
@@ -235,7 +328,16 @@ stellar-connect-wallet/
 
 ## 🌐 Live Demo
 
-> Deployed at: **https://stellar-connect-wallet-rust.vercel.app/**
+> **Live app:** https://stellar-connect-wallet-rust.vercel.app/
+> **Demo video (1–2 min):** **[add link]**
+
+---
+
+## 📱 Mobile Responsive
+
+The dApp is fully responsive across mobile, tablet, and desktop.
+
+> 📸 _Screenshot: mobile responsive UI_ — **[add image]**
 
 ---
 
