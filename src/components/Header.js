@@ -344,41 +344,47 @@ function Header() {
                                 StellarFlow merges fast, non-custodial payments with real on-chain
                                 smart contracts — unlocking trustless transfers and crowdfunding on Stellar.
                             </p>
-                            <button className="btn btn-glass-primary cf-cta" onClick={handleConnect} disabled={isConnecting}>
-                                {isConnecting ? <><span className="spinner"></span> Connecting…</> : <>Get Started <ArrowRightIcon /></>}
-                            </button>
                         </div>
                     </Reveal>
-                    <div className="lp-bento">
-                        <Reveal className="bento-card bento-lg">
+                    <div className="cf-bento">
+                        {/* left column */}
+                        <Reveal className="bento-card">
                             <div className="lp-feature-icon"><ZapIcon /></div>
                             <div className="lp-feature-title">Instant finality</div>
-                            <div className="lp-feature-desc">Stellar reaches consensus in about 5 seconds, so your payment is final almost instantly — no block-confirmation waiting, no uncertainty.</div>
-                            <div className="bento-visual">
-                                <div className="bento-speed">
-                                    <span className="bento-speed-bar" style={{ animationDelay: "0s" }} />
-                                    <span className="bento-speed-bar" style={{ animationDelay: "0.15s" }} />
-                                    <span className="bento-speed-bar" style={{ animationDelay: "0.3s" }} />
-                                    <span className="bento-speed-num"><Counter to={5} decimals={1} suffix="s" /></span>
-                                </div>
-                            </div>
+                            <div className="lp-feature-desc">Stellar reaches consensus in about 5 seconds, so your payment is final almost instantly — no block-confirmation waiting.</div>
                         </Reveal>
                         <Reveal className="bento-card" delay={80}>
                             <div className="lp-feature-icon"><KeyIcon /></div>
                             <div className="lp-feature-title">Non-custodial</div>
                             <div className="lp-feature-desc">Your keys, your coins. You sign every transaction in Freighter — we never touch your funds.</div>
                         </Reveal>
+
+                        {/* center — chip animation card */}
+                        <Reveal className="bento-card bento-center" delay={120}>
+                            <div className="lp-feature-icon"><LayersIcon /></div>
+                            <div className="lp-feature-title">Real Soroban smart contracts</div>
+                            <div className="lp-feature-desc">More than payments — a live crowdfunding contract on Testnet, with on-chain donations, events, and inter-contract calls.</div>
+                            <div className="chip-stage">
+                                <div className="chip-trace chip-trace-l1" />
+                                <div className="chip-trace chip-trace-l2" />
+                                <div className="chip-trace chip-trace-r1" />
+                                <div className="chip-trace chip-trace-r2" />
+                                <div className="chip-beam" />
+                                <div className="chip-core">
+                                    <span className="chip-corner chip-corner-tl" />
+                                    <span className="chip-corner chip-corner-br" />
+                                    <LayersIcon />
+                                </div>
+                            </div>
+                        </Reveal>
+
+                        {/* right column */}
                         <Reveal className="bento-card" delay={160}>
                             <div className="lp-feature-icon"><GlobeIcon /></div>
                             <div className="lp-feature-title">Near-zero fees</div>
                             <div className="lp-feature-desc">Send XLM for ~$0.00001. Cross-border payments that actually make sense.</div>
                         </Reveal>
-                        <Reveal className="bento-card bento-wide" delay={80}>
-                            <div className="lp-feature-icon"><LayersIcon /></div>
-                            <div className="lp-feature-title">Real Soroban smart contracts</div>
-                            <div className="lp-feature-desc">More than payments — StellarFlow ships a live crowdfunding contract deployed on Testnet, with on-chain donations, progress and events.</div>
-                        </Reveal>
-                        <Reveal className="bento-card" delay={160}>
+                        <Reveal className="bento-card" delay={200}>
                             <div className="lp-feature-icon"><ShieldIcon /></div>
                             <div className="lp-feature-title">Audited primitives</div>
                             <div className="lp-feature-desc">Built on Stellar's battle-tested SDK and the native token interface.</div>

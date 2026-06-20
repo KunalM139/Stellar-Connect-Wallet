@@ -1350,3 +1350,76 @@ body {
     .cf-sec-head { grid-template-columns: 1fr; gap: 22px; }
     .cf-sec-head-right { align-items: flex-start; }
 }
+
+/* ════════════════ ChainFund bento (3-col with center chip) ════════════════ */
+.cf-bento {
+    display: grid;
+    grid-template-columns: 1fr 1.25fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 18px;
+}
+.cf-bento > :nth-child(1) { grid-column: 1; grid-row: 1; }
+.cf-bento > :nth-child(2) { grid-column: 1; grid-row: 2; }
+.cf-bento > :nth-child(3) { grid-column: 2; grid-row: 1 / span 2; }
+.cf-bento > :nth-child(4) { grid-column: 3; grid-row: 1; }
+.cf-bento > :nth-child(5) { grid-column: 3; grid-row: 2; }
+.bento-center { display: flex; flex-direction: column; }
+
+/* ── Chip stage ── */
+.chip-stage {
+    position: relative; flex: 1; min-height: 230px; margin-top: 22px;
+    border-radius: 16px; overflow: hidden;
+    background: radial-gradient(circle at 50% 62%, rgba(80,120,255,0.14), transparent 60%), #070912;
+}
+.chip-stage::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(120,145,255,0.28) 1px, transparent 1px);
+    background-size: 18px 18px; opacity: 0.45;
+}
+/* vertical light beam behind the chip */
+.chip-beam {
+    position: absolute; left: 50%; top: -10%; bottom: -10%; width: 130px;
+    transform: translateX(-50%);
+    background: linear-gradient(to bottom, transparent, rgba(130,160,255,0.6) 40%, rgba(170,195,255,0.35) 55%, transparent);
+    filter: blur(10px); animation: chip-beam-pulse 3.2s ease-in-out infinite;
+}
+@keyframes chip-beam-pulse { 0%,100% { opacity: 0.45; } 50% { opacity: 1; } }
+/* circuit traces with travelling light */
+.chip-trace {
+    position: absolute; top: 50%; height: 2px; width: 36%;
+    background: linear-gradient(90deg, rgba(106,141,255,0) 0%, rgba(106,141,255,0.5) 100%);
+    overflow: hidden;
+}
+.chip-trace::after {
+    content: ''; position: absolute; top: 0; left: 0; width: 26px; height: 100%;
+    background: linear-gradient(90deg, transparent, #b9ccff);
+    animation: chip-flow 2.2s linear infinite;
+}
+.chip-trace-l1 { left: 0; top: 38%; }
+.chip-trace-l2 { left: 0; top: 62%; transform: scaleX(0.8); }
+.chip-trace-r1 { right: 0; top: 42%; transform: scaleX(-1); }
+.chip-trace-r2 { right: 0; top: 66%; transform: scaleX(-0.8); }
+.chip-trace-l2::after { animation-delay: 0.6s; }
+.chip-trace-r1::after { animation-delay: 0.3s; }
+.chip-trace-r2::after { animation-delay: 0.9s; }
+@keyframes chip-flow { from { transform: translateX(-30px); } to { transform: translateX(360px); } }
+/* the chip core */
+.chip-core {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+    width: 88px; height: 88px; border-radius: 20px;
+    background: linear-gradient(150deg, #e6ecff 0%, #7d9bff 55%, #3d5cff 100%);
+    box-shadow: 0 0 46px rgba(106,141,255,0.85), inset 0 1px 5px rgba(255,255,255,0.7);
+    display: flex; align-items: center; justify-content: center;
+    animation: chip-glow 3.2s ease-in-out infinite;
+}
+.chip-core svg { width: 36px; height: 36px; color: #1a2350; }
+@keyframes chip-glow { 0%,100% { box-shadow: 0 0 30px rgba(106,141,255,0.6), inset 0 1px 5px rgba(255,255,255,0.6); } 50% { box-shadow: 0 0 60px rgba(140,170,255,1), inset 0 1px 5px rgba(255,255,255,0.8); } }
+.chip-corner { position: absolute; width: 8px; height: 8px; border-radius: 2px; background: rgba(26,35,80,0.55); }
+.chip-corner-tl { top: 9px; left: 9px; }
+.chip-corner-br { bottom: 9px; right: 9px; }
+
+@media (max-width: 860px) {
+    .cf-bento { grid-template-columns: 1fr; grid-template-rows: none; }
+    .cf-bento > :nth-child(n) { grid-column: 1 !important; grid-row: auto !important; }
+    .chip-stage { min-height: 200px; }
+}
