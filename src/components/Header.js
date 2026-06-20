@@ -251,6 +251,9 @@ function Header() {
                     saturation={1}
                 />
 
+                {/* Perspective grid floor (ChainFund look) */}
+                <div className="lp-hero-grid" />
+
                 {/* Hero — two columns: copy left, lit coins right */}
                 <div className="lp-hero-content lp-hero-two-col">
                     <div className="lp-hero-copy">
