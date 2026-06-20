@@ -401,7 +401,6 @@ function Header() {
                         <h2 className="lp-section-title">Three simple steps</h2>
                     </Reveal>
                     <div className="lp-steps-grid">
-                        <div className="lp-steps-line" />
                         <Reveal className="lp-step">
                             <div className="lp-step-num">1</div>
                             <div className="lp-step-title">Install Freighter</div>
