@@ -1156,3 +1156,79 @@ body {
     .testimonials { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) { .roadmap { grid-template-columns: 1fr; } }
+
+/* ════════════════ Hero — ChainFund-style two-column (copy left, lit coins right) ════════════════ */
+.lp-hero-content.lp-hero-two-col {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    gap: 40px;
+    max-width: 1180px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 130px 24px 70px;
+}
+.lp-hero-copy { flex: 1 1 50%; max-width: 580px; display: flex; flex-direction: column; align-items: flex-start; }
+.lp-hero-two-col .lp-hero-title { text-align: left; margin-bottom: 22px; max-width: none; }
+.lp-hero-two-col .lp-hero-sub { text-align: left; margin: 0 0 36px; max-width: 500px; }
+.lp-hero-two-col .lp-hero-actions { justify-content: flex-start; }
+
+/* Right visual column */
+.lp-hero-visual {
+    position: relative;
+    flex: 1 1 50%;
+    min-height: 460px;
+    display: flex; align-items: center; justify-content: center;
+}
+.hero-coins {
+    position: relative; z-index: 2;
+    max-width: 100%; width: 540px; height: auto;
+    filter: drop-shadow(0 30px 60px rgba(60, 110, 255, 0.35));
+    animation: coins-float 6s ease-in-out infinite;
+}
+@keyframes coins-float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-18px) rotate(-1.5deg); }
+}
+/* Electric-blue glow pooling under the spotlight */
+.hero-coins-glow {
+    position: absolute; z-index: 1;
+    top: 42%; left: 50%; transform: translate(-50%, -50%);
+    width: 460px; height: 460px;
+    background: radial-gradient(circle, rgba(80, 120, 255, 0.42) 0%, rgba(80, 120, 255, 0.12) 42%, transparent 70%);
+    filter: blur(14px);
+    animation: glow-pulse 5s ease-in-out infinite;
+    pointer-events: none;
+}
+@keyframes glow-pulse {
+    0%, 100% { opacity: 0.75; transform: translate(-50%, -50%) scale(1); }
+    50%      { opacity: 1;    transform: translate(-50%, -50%) scale(1.08); }
+}
+
+/* ── Electric-blue button glow (ChainFund vibe) ── */
+.btn-glass-primary, .btn-gradient {
+    box-shadow: 0 0 0 1px rgba(106, 141, 255, 0.35), 0 10px 30px rgba(60, 110, 255, 0.28);
+}
+.btn-glass-primary:hover:not(:disabled), .btn-gradient:hover:not(:disabled) {
+    box-shadow: 0 0 0 1px rgba(106, 141, 255, 0.6), 0 14px 40px rgba(60, 110, 255, 0.45);
+}
+
+@media (max-width: 960px) {
+    .lp-hero-content.lp-hero-two-col {
+        flex-direction: column;
+        text-align: center;
+        gap: 18px;
+        padding: 120px 20px 50px;
+    }
+    .lp-hero-copy { align-items: center; max-width: 600px; }
+    .lp-hero-two-col .lp-hero-title,
+    .lp-hero-two-col .lp-hero-sub { text-align: center; }
+    .lp-hero-two-col .lp-hero-actions { justify-content: center; }
+    .lp-hero-visual { min-height: 340px; width: 100%; }
+    .hero-coins { width: 360px; }
+    .hero-coins-glow { width: 320px; height: 320px; }
+}
+@media (max-width: 480px) {
+    .hero-coins { width: 280px; }
+}

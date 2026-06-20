@@ -88,6 +88,7 @@ function Header() {
     const [isSending, setIsSending]       = useState(false);
     const [scrolled, setScrolled]         = useState(false);
     const [walletPrompt, setWalletPrompt] = useState(null); // { title, message, showInstall }
+    const [coinsOk, setCoinsOk]           = useState(true);  // hero coins image present?
 
     // Sticky-nav: add a solid background once the user scrolls past the hero top.
     useEffect(() => {
@@ -234,75 +235,86 @@ function Header() {
             {/* ── Hero Section ── */}
             <section className="lp-hero-section">
 
-                {/* Light Rays WebGL – fills whole hero */}
+                {/* Light Rays WebGL – spotlight beams down onto the coins on the right */}
                 <LightRays
-                    raysOrigin="top-center"
-                    raysColor="#ffffff"
+                    raysOrigin="top-right"
+                    raysColor="#6a8dff"
                     raysSpeed={0.8}
-                    lightSpread={0.45}
-                    rayLength={2.5}
+                    lightSpread={0.5}
+                    rayLength={2.8}
                     followMouse={true}
                     mouseInfluence={0.12}
                     noiseAmount={0}
                     distortion={0}
-                    fadeDistance={1}
-                    saturation={0.8}
+                    fadeDistance={1.1}
+                    saturation={1}
                 />
 
-                {/* Hero Copy */}
-                <div className="lp-hero-content">
-                    <div className="lp-hero-pill">
-                        <span className="hero-pill-dot"></span>
-                        Live on Stellar Testnet · Soroban-powered
-                    </div>
-                    <h1 className="lp-hero-title">
-                        Send money<br />
-                        <span className="lp-hero-title-grad">at the speed of light</span>
-                    </h1>
-                    <p className="lp-hero-sub">
-                        StellarFlow is a non-custodial payment dApp on the Stellar blockchain.
-                        Connect Freighter, send XLM anywhere in seconds, and fund campaigns
-                        through real on-chain smart contracts.
-                    </p>
-                    <div className="lp-hero-actions">
-                        <button id="btn-connect-hero" className="btn btn-glass-primary btn-lg" onClick={handleConnect} disabled={isConnecting}>
-                            {isConnecting ? <><span className="spinner"></span> Connecting...</> : <>Launch app <ArrowRightIcon /></>}
-                        </button>
-                        <button className="btn btn-glass-secondary btn-lg" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>How it works</button>
-                    </div>
-                    <div className="lp-hero-trust">
-                        <span className="lp-hero-trust-dot" /> No sign-up
-                        <span className="lp-hero-trust-dot" /> Your keys, your coins
-                        <span className="lp-hero-trust-dot" /> Free on Testnet
+                {/* Hero — two columns: copy left, lit coins right */}
+                <div className="lp-hero-content lp-hero-two-col">
+                    <div className="lp-hero-copy">
+                        <div className="lp-hero-pill">
+                            <span className="hero-pill-dot"></span>
+                            Live on Stellar Testnet · Soroban-powered
+                        </div>
+                        <h1 className="lp-hero-title">
+                            Send money<br />
+                            <span className="lp-hero-title-grad">at the speed of light</span>
+                        </h1>
+                        <p className="lp-hero-sub">
+                            StellarFlow is a non-custodial payment dApp on the Stellar blockchain.
+                            Connect Freighter, send XLM anywhere in seconds, and fund campaigns
+                            through real on-chain smart contracts.
+                        </p>
+                        <div className="lp-hero-actions">
+                            <button id="btn-connect-hero" className="btn btn-glass-primary btn-lg" onClick={handleConnect} disabled={isConnecting}>
+                                {isConnecting ? <><span className="spinner"></span> Connecting...</> : <>Launch app <ArrowRightIcon /></>}
+                            </button>
+                            <button className="btn btn-glass-secondary btn-lg" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>How it works</button>
+                        </div>
+                        <div className="lp-hero-trust">
+                            <span className="lp-hero-trust-dot" /> No sign-up
+                            <span className="lp-hero-trust-dot" /> Your keys, your coins
+                            <span className="lp-hero-trust-dot" /> Free on Testnet
+                        </div>
                     </div>
 
-                    {/* Floating app preview */}
-                    <Reveal className="hero-showcase" delay={120}>
-                        <div className="showcase-glow" />
-                        <div className="app-preview">
-                            <div className="app-preview-bar">
-                                <span className="app-preview-dot ap-red" />
-                                <span className="app-preview-dot ap-yellow" />
-                                <span className="app-preview-dot ap-green" />
-                                <span className="app-preview-url">app.stellarflow.xyz</span>
+                    {/* Right visual — the spotlight lands here on the coins */}
+                    <Reveal className="lp-hero-visual" delay={120}>
+                        <div className="hero-coins-glow" />
+                        {coinsOk ? (
+                            <img
+                                className="hero-coins"
+                                src={process.env.PUBLIC_URL + "/coins.png"}
+                                alt="Floating crypto coins"
+                                onError={() => setCoinsOk(false)}
+                            />
+                        ) : (
+                            <div className="app-preview">
+                                <div className="app-preview-bar">
+                                    <span className="app-preview-dot ap-red" />
+                                    <span className="app-preview-dot ap-yellow" />
+                                    <span className="app-preview-dot ap-green" />
+                                    <span className="app-preview-url">app.stellarflow.xyz</span>
+                                </div>
+                                <div className="app-preview-body">
+                                    <div className="ap-balance">
+                                        <span className="ap-balance-lbl">Total Balance</span>
+                                        <div className="ap-balance-amt">10,000.00 <span>XLM</span></div>
+                                        <span className="ap-balance-chg">▲ 2.4% this week</span>
+                                    </div>
+                                    <div className="ap-actions">
+                                        <div className="ap-btn ap-btn-primary"><SendIcon /> Send</div>
+                                        <div className="ap-btn">Receive</div>
+                                    </div>
+                                    <div className="ap-tx-list">
+                                        <div className="ap-tx"><span className="ap-tx-ic ap-out">↑</span><div className="ap-tx-info"><b>Sent XLM</b><small>To GDX2…9F1A</small></div><span className="ap-tx-amt ap-amt-out">-250.00</span></div>
+                                        <div className="ap-tx"><span className="ap-tx-ic ap-in">↓</span><div className="ap-tx-info"><b>Received</b><small>From GBN4…K7Q2</small></div><span className="ap-tx-amt ap-amt-in">+1,200.00</span></div>
+                                        <div className="ap-tx"><span className="ap-tx-ic ap-out">↑</span><div className="ap-tx-info"><b>Donation</b><small>StellarFund</small></div><span className="ap-tx-amt ap-amt-out">-50.00</span></div>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="app-preview-body">
-                                <div className="ap-balance">
-                                    <span className="ap-balance-lbl">Total Balance</span>
-                                    <div className="ap-balance-amt">10,000.00 <span>XLM</span></div>
-                                    <span className="ap-balance-chg">▲ 2.4% this week</span>
-                                </div>
-                                <div className="ap-actions">
-                                    <div className="ap-btn ap-btn-primary"><SendIcon /> Send</div>
-                                    <div className="ap-btn">Receive</div>
-                                </div>
-                                <div className="ap-tx-list">
-                                    <div className="ap-tx"><span className="ap-tx-ic ap-out">↑</span><div className="ap-tx-info"><b>Sent XLM</b><small>To GDX2…9F1A</small></div><span className="ap-tx-amt ap-amt-out">-250.00</span></div>
-                                    <div className="ap-tx"><span className="ap-tx-ic ap-in">↓</span><div className="ap-tx-info"><b>Received</b><small>From GBN4…K7Q2</small></div><span className="ap-tx-amt ap-amt-in">+1,200.00</span></div>
-                                    <div className="ap-tx"><span className="ap-tx-ic ap-out">↑</span><div className="ap-tx-info"><b>Donation</b><small>StellarFund</small></div><span className="ap-tx-amt ap-amt-out">-50.00</span></div>
-                                </div>
-                            </div>
-                        </div>
+                        )}
                         <div className="float-chip float-chip-1"><CheckIcon /> Confirmed in 4.2s</div>
                         <div className="float-chip float-chip-2">Network fee · $0.00001</div>
                     </Reveal>
