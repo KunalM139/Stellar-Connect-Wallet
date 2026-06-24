@@ -11,7 +11,7 @@ import Testimonials from "./Testimonials";
 import MagicRings from "./MagicRings";
 import coinsImg from "../media/landphoto.png";
 import logoImg from "../media/logo.png";
-import { connectWallet, fetchBalance, sendPayment } from "./Freighter";
+import { connectWallet, fetchBalance, sendPayment, fetchPayments } from "./Freighter";
 
 /* ── SVG Icons ── */
 const SendIcon = () => (
@@ -103,6 +103,8 @@ function Header() {
     const [walletPrompt, setWalletPrompt] = useState(null); // { title, message, showInstall }
     const [coinsOk, setCoinsOk]           = useState(true);  // hero coins image present?
     const [theme, setTheme]               = useState("dark");
+    const [isLoadingPayments, setIsLoadingPayments] = useState(false);
+    const [paymentsError, setPaymentsError]         = useState("");
 
     // Theme toggle effect
     useEffect(() => {
@@ -135,6 +137,50 @@ function Header() {
         } catch {}
     };
 
+    const loadOnChainPayments = async (pk) => {
+        setIsLoadingPayments(true);
+        setPaymentsError("");
+        try {
+            const payments = await fetchPayments(pk);
+            const formatted = payments.map(p => {
+                const isDebit = p.from === pk;
+                let amount = "0";
+                let type = "Transfer";
+                if (p.type === "payment") {
+                    amount = p.amount;
+                } else if (p.type === "create_account") {
+                    amount = p.starting_balance;
+                    type = "Create Account";
+                } else if (p.type === "account_merge") {
+                    type = "Merge Account";
+                }
+                
+                return {
+                    hash: p.transaction_hash,
+                    from: p.from,
+                    to: p.to || p.into || p.account || "",
+                    isDebit,
+                    amount,
+                    type,
+                    date: new Date(p.created_at).toLocaleString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    })
+                };
+            });
+            setTxHistory(formatted);
+            saveHistory(pk, formatted);
+        } catch (e) {
+            console.error("Failed to load on-chain payments:", e);
+            setPaymentsError("Could not retrieve live on-chain history.");
+            setTxHistory(loadHistory(pk));
+        } finally {
+            setIsLoadingPayments(false);
+        }
+    };
+
     const handleConnect = async () => {
         setIsConnecting(true);
         try {
@@ -142,8 +188,7 @@ function Header() {
             setAddress(pk);
             const bal = await fetchBalance(pk);
             setBalance(Number(bal).toFixed(2));
-            // Restore this wallet's history from localStorage
-            setTxHistory(loadHistory(pk));
+            await loadOnChainPayments(pk);
         } catch (e) {
             // Show a friendly in-app modal instead of a raw alert. Missing
             // wallet → offer the install link; anything else → explain & retry.
@@ -158,7 +203,6 @@ function Header() {
     const handleDisconnect = () => {
         setAddress(""); setBalance(""); setRecipient("");
         setAmount(""); setStatus(""); setHash("");
-        // Keep txHistory in memory for UX; it's already saved in localStorage
         setTxHistory([]);
     };
 
@@ -177,13 +221,33 @@ function Header() {
             const txHash = await sendPayment(address, recipient, amount);
             setHash(txHash);
             setStatus("success");
-            const newEntry = { to: recipient, amount, date: new Date().toLocaleDateString(), hash: txHash };
-            const updated  = [newEntry, ...txHistory];
+            
+            const newEntry = {
+                hash: txHash,
+                from: address,
+                to: recipient,
+                isDebit: true,
+                amount,
+                type: "Transfer",
+                date: new Date().toLocaleString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                })
+            };
+            const updated = [newEntry, ...txHistory.slice(0, 9)];
             setTxHistory(updated);
-            saveHistory(address, updated);   // persist to localStorage
+            saveHistory(address, updated);
+            
             setRecipient(""); setAmount("");
             const bal = await fetchBalance(address);
             setBalance(Number(bal).toFixed(2));
+
+            // Trigger an async background refresh in 2.5 seconds to align with the blockchain
+            setTimeout(() => {
+                loadOnChainPayments(address);
+            }, 2500);
         } catch (e) {
             console.error(e);
             setStatus("error");
@@ -666,16 +730,67 @@ function Header() {
                     <div className="activity-card">
                         <div className="activity-head">
                             <span className="activity-head-title">Recent Activity</span>
+                            {address && (
+                                <button 
+                                    className={`refresh-btn ${isLoadingPayments ? "loading" : ""}`} 
+                                    onClick={() => loadOnChainPayments(address)}
+                                    disabled={isLoadingPayments}
+                                    title="Refresh activity"
+                                    aria-label="Refresh activity"
+                                >
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                                    </svg>
+                                </button>
+                            )}
                         </div>
-                        {txHistory.length > 0 ? txHistory.map((tx, i) => (
-                            <div className="activity-item" key={i}>
-                                <div className="activity-item-left">
-                                    <span className="activity-item-name">Transfer</span>
-                                    <span className="activity-item-date">{tx.date}</span>
-                                </div>
-                                <span className="activity-item-amount debit">- {tx.amount} XLM</span>
+                        {isLoadingPayments && txHistory.length === 0 ? (
+                            <div className="activity-loading">
+                                <span className="spinner"></span>
+                                <p>Fetching ledger history...</p>
                             </div>
-                        )) : (
+                        ) : paymentsError && txHistory.length === 0 ? (
+                            <div className="activity-error">
+                                <p>{paymentsError}</p>
+                                <button className="btn btn-glass-secondary btn-sm" onClick={() => loadOnChainPayments(address)}>Retry</button>
+                            </div>
+                        ) : txHistory.length > 0 ? (
+                            <div className="activity-list">
+                                {txHistory.map((tx, i) => (
+                                    <div className="activity-item" key={i}>
+                                        <div className="activity-item-left">
+                                            <div className="activity-item-title-row">
+                                                <span className={`activity-badge ${tx.isDebit ? "debit" : "credit"}`}>
+                                                    {tx.isDebit ? "Sent" : "Received"}
+                                                </span>
+                                                <span className="activity-item-name">{tx.type}</span>
+                                            </div>
+                                            <span className="activity-item-date">
+                                                {tx.isDebit ? `To: ${short(tx.to)}` : `From: ${short(tx.from)}`} • {tx.date}
+                                            </span>
+                                        </div>
+                                        <div className="activity-item-right">
+                                            <span className={`activity-item-amount ${tx.isDebit ? "debit" : "credit"}`}>
+                                                {tx.isDebit ? "-" : "+"} {Number(tx.amount).toFixed(2)} XLM
+                                            </span>
+                                            {tx.hash && (
+                                                <a 
+                                                    href={`https://stellar.expert/explorer/testnet/tx/${tx.hash}`} 
+                                                    target="_blank" 
+                                                    rel="noreferrer" 
+                                                    className="tx-explorer-link"
+                                                    title="View on StellarExpert Explorer"
+                                                >
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                                                    </svg>
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
                             <p className="activity-empty">No transactions yet</p>
                         )}
                     </div>

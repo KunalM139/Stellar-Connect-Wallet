@@ -122,3 +122,17 @@ export const sendPayment = async (sender, recipient, amount) => {
         throw error instanceof Error ? error : new Error(String(error));
     }
 };
+
+export const fetchPayments = async (publicKey) => {
+    try {
+        const paymentsResponse = await server.payments()
+            .forAccount(publicKey)
+            .order("desc")
+            .limit(10)
+            .call();
+        return paymentsResponse.records;
+    } catch (error) {
+        console.error("Error fetching payments:", error);
+        throw error;
+    }
+};
