@@ -10,6 +10,19 @@ body {
   overflow-x: hidden;
 }
 
+/* ── LIGHT MODE INVERT TRICK ── */
+body.light-theme {
+  filter: invert(1) hue-rotate(180deg);
+  background: #f9f8f2; /* Provides a solid light base before inversion */
+}
+
+/* Re-invert images and colored visuals so they display normally */
+body.light-theme img,
+body.light-theme .hero-coins,
+body.light-theme .app-preview {
+  filter: invert(1) hue-rotate(180deg);
+}
+
 /* ════════════════════════════════════════
    LANDING PAGE
 ════════════════════════════════════════ */

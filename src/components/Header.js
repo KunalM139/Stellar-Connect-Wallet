@@ -77,6 +77,16 @@ const TwitterIcon = () => (
 const GithubIcon = () => (
     <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.4.5 0 5.9 0 12.5c0 5.3 3.4 9.8 8.2 11.4.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2 0-.4-.5-1.6.2-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.2 2.8.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 24 12.5C24 5.9 18.6.5 12 .5z"/></svg>
 );
+const SunIcon = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    </svg>
+);
+const MoonIcon = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+);
 
 function Header() {
     const [address, setAddress]     = useState("");
@@ -92,6 +102,16 @@ function Header() {
     const [scrolled, setScrolled]         = useState(false);
     const [walletPrompt, setWalletPrompt] = useState(null); // { title, message, showInstall }
     const [coinsOk, setCoinsOk]           = useState(true);  // hero coins image present?
+    const [theme, setTheme]               = useState("dark");
+
+    // Theme toggle effect
+    useEffect(() => {
+        if (theme === "light") {
+            document.body.classList.add("light-theme");
+        } else {
+            document.body.classList.remove("light-theme");
+        }
+    }, [theme]);
 
     // Sticky-nav: add a solid background once the user scrolls past the hero top.
     useEffect(() => {
@@ -251,6 +271,9 @@ function Header() {
                         <span className="cf-nav-link" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>How it works</span>
                         <span className="cf-nav-link" onClick={() => document.getElementById('campaign')?.scrollIntoView({ behavior: 'smooth' })}>Crowdfund</span>
                         <span className="cf-nav-link" onClick={() => document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' })}>FAQ</span>
+                        <span className="cf-nav-link" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} title="Toggle theme">
+                            {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+                        </span>
                     </div>
                     <button id="btn-connect-nav" className="cf-nav-cta" onClick={handleConnect} disabled={isConnecting}>
                         {isConnecting ? <><span className="spinner"></span> Connecting…</> : "Connect Wallet"}
@@ -612,6 +635,9 @@ function Header() {
                 </div>
                 <div className="dash-nav-right">
                     <span className="dash-nav-badge">Testnet</span>
+                    <button className="btn btn-glass-secondary" style={{ width: "auto", padding: "8px", borderRadius: "12px" }} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} title="Toggle theme">
+                        {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+                    </button>
                     <button id="btn-disconnect" className="btn btn-danger-soft" style={{ width: "auto", padding: "8px 16px", fontSize: "0.8rem" }} onClick={handleDisconnect}>
                         <LogoutIcon /> Disconnect
                     </button>
