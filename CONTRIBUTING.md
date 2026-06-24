@@ -136,4 +136,4 @@ The companion contract that assigns loyalty tiers based on cumulative contributi
 * `admin(env: Env) -> Address`: Returns the authorized fund contract address.
 
 #### Errors
-* `NotInitialized` (1): Contract admin not set.
+* `NotInitialized` (1): Contract 
