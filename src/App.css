@@ -664,7 +664,29 @@ body.light-theme .app-preview {
 }
 
 .dash-tile-label { font-size: 0.68rem; font-weight: 600; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
-.dash-tile-value { font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.85); word-break: break-all; }
+.dash-tile-value { font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.85); word-break: break-all; width: 100%; }
+
+.copy-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.15s ease-in-out;
+}
+
+.copy-btn:hover {
+  color: #8ea2ff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.copy-btn.copied {
+  color: #34d399;
+}
 
 .activity-card {
   background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);

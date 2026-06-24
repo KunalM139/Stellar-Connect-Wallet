@@ -105,6 +105,14 @@ function Header() {
     const [theme, setTheme]               = useState("dark");
     const [isLoadingPayments, setIsLoadingPayments] = useState(false);
     const [paymentsError, setPaymentsError]         = useState("");
+    const [copied, setCopied]                       = useState(false);
+
+    const handleCopyAddress = () => {
+        if (!address) return;
+        navigator.clipboard.writeText(address);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     // Theme toggle effect
     useEffect(() => {
@@ -724,7 +732,26 @@ function Header() {
 
                     <div className="dash-tile">
                         <div className="dash-tile-label">Wallet Address</div>
-                        <div className="dash-tile-value">{address.slice(0,14)}...{address.slice(-10)}</div>
+                        <div className="dash-tile-value" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                            <span>{address.slice(0,14)}...{address.slice(-10)}</span>
+                            <button 
+                                className={`copy-btn ${copied ? 'copied' : ''}`}
+                                onClick={handleCopyAddress}
+                                title={copied ? "Copied!" : "Copy address"}
+                                aria-label="Copy address"
+                            >
+                                {copied ? (
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="20 6 9 17 4 12"/>
+                                    </svg>
+                                ) : (
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                    </svg>
+                                )}
+                            </button>
+                        </div>
                     </div>
 
                     <div className="activity-card">
