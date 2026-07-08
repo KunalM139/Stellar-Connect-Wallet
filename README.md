@@ -1,7 +1,7 @@
 <img width="1672" height="941" alt="ChatGPT Image Jun 21, 2026, 09_50_07 PM" src="https://github.com/user-attachments/assets/8032d713-fcc5-44df-9eb8-0ff42c234a3d" />
 
 <h3 align="center">A Soroban smart contract for on-chain crowdfunding, with a non-custodial React dApp + Freighter wallet front-end on the Stellar Testnet</h3>ghvggyghhjuihyhjggjhjjhg
-
+jh
 <p align="center">
   <a href="https://soroban.stellar.org"><img src="https://img.shields.io/badge/Soroban-Smart_Contract-000000?style=flat-square&logo=stellar" alt="Soroban"/></a>
   <a href="https://react.dev"><img src="https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react" alt="React"/></a>
